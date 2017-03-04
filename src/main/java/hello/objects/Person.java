@@ -7,6 +7,7 @@ import java.util.List;
  */
 public class Person {
 
+    public long id;
     public String name;
     public String imageUrl;
     public int age;
@@ -17,7 +18,8 @@ public class Person {
 
     }
 
-    public Person(String name, int age, String job, String url, List<Pet> pets) {
+    public Person(long id,String name, int age, String job, String url, List<Pet> pets) {
+        this.id = id;
         this.name = name;
         this.age = age;
         this.job = job;
