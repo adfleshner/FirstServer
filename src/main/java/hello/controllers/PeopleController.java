@@ -6,7 +6,6 @@ import hello.objects.Pet;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,13 +27,13 @@ public class PeopleController {
     private ArrayList<Person> people = createPeople();
 
     @RequestMapping(value = "/people", method = RequestMethod.GET)
-    public ArrayList<Person> getPeople(@RequestParam(value = "name", required = false, defaultValue = "") String personsName,
-                                       @RequestParam(value = "hasAnimals", required = false, defaultValue = "") String hasAnimal) throws Exception {
+    public ResponseEntity<ArrayList<Person>> getPeople(@RequestParam(value = "name", required = false, defaultValue = "") String personsName,
+                                       @RequestParam(value = "hasAnimals", required = false, defaultValue = "") String hasAnimal) {
 
         Set<Person> somePeeps = new HashSet<>();
         //nothing is given
         if (personsName.isEmpty() && hasAnimal.isEmpty()) {
-            return people;
+            return ResponseEntity.ok(people);
         }
         //both are give
         if (!personsName.isEmpty() && !hasAnimal.isEmpty()) {
@@ -56,7 +55,7 @@ public class PeopleController {
 
                 }
             }
-            return new ArrayList<>(somePeeps);
+            return ResponseEntity.ok(new ArrayList<>(somePeeps));
         }
         //if only name is given
         if (!personsName.isEmpty() && hasAnimal.isEmpty()) {
@@ -68,12 +67,19 @@ public class PeopleController {
                     somePeeps.add(p);
                 }
             }
-            return new ArrayList<>(somePeeps);
+            return ResponseEntity.ok(new ArrayList<>(somePeeps));
         }
         //only animals are give
         if (personsName.isEmpty() && !hasAnimal.isEmpty()) {
             try {
-                boolean animals = Boolean.parseBoolean(hasAnimal.toLowerCase());
+                boolean animals;
+                if(hasAnimal.toLowerCase().equals("true")){
+                    animals = true;
+                }else if(hasAnimal.toLowerCase().equals("false")){
+                    animals = false;
+                }else{
+                    throw new Exception();
+                }
                 for (Person p : people) {
                     if (animals) {
                         if (p.pets != null && p.pets.size() != 0) {
@@ -86,10 +92,10 @@ public class PeopleController {
                     }
                 }
             } catch (Exception e) {
-                throw new Exception("hasAnimals must be a boolean true or false");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
             }
         }
-        return new ArrayList<>(somePeeps);
+        return ResponseEntity.ok(new ArrayList<>(somePeeps));
     }
 
 
@@ -113,8 +119,7 @@ public class PeopleController {
     public ResponseEntity<String> editPerson(@RequestBody String json) {
         String wasEdited = "Failed";
         Person p = new Gson().fromJson(json, Person.class);
-        for (int i = 0; i < people.size(); i++) {
-            Person person = people.get(i);
+        for (Person person : people) {
             if (person.id == p.id) {
                 person.id = p.id;
                 person.name = p.name;
