@@ -1,5 +1,7 @@
 # FirstServer
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/63aa958a44214a2dbf60aaa67ea75e0c)](https://www.codacy.com/app/adfleshner/FirstServer?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=adfleshner/FirstServer&amp;utm_campaign=Badge_Grade)
+
 Creating my first java webservice.
 
 Currently has a Get Method That gets a list of Person
