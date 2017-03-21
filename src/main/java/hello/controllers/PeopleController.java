@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.MalformedParametersException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,9 +29,10 @@ public class PeopleController {
     private ArrayList<Person> people = createPeople();
 
     @RequestMapping(value = "/people", method = RequestMethod.GET)
-    public ResponseEntity<ArrayList<Person>> getPeople(@RequestParam(value = "name",required = false, defaultValue = "") String name,
-                                       @RequestParam(value = "hasAnimals",required = false, defaultValue = "") String hasAnimals) {
-
+    public ResponseEntity<ArrayList<Person>> getPeople(@RequestParam(value = "name",required = false, defaultValue = "")
+                                                                   String name,
+                                       @RequestParam(value = "hasAnimals",required = false, defaultValue = "")
+                                               String hasAnimals) {
         Set<Person> somePeeps = new HashSet<>();
         //nothing is given
         if (name.isEmpty() && hasAnimals.isEmpty()) {
@@ -79,7 +81,7 @@ public class PeopleController {
                 }else if("false".equalsIgnoreCase(hasAnimals)){
                     animals = false;
                 }else{
-                    throw new Exception();
+                    throw new MalformedParametersException("hasAnimals needs to be true or false");
                 }
                 for (Person p : people) {
                     if (animals) {
@@ -92,8 +94,8 @@ public class PeopleController {
                         }
                     }
                 }
-            } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
+            } catch (MalformedParametersException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
         }
         return ResponseEntity.ok(new ArrayList<>(somePeeps));
