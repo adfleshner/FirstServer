@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
  * Created by Aaron Fleshner on 3/2/17.
  */
 @RestController()
+@RequestMapping(value = "/api/v1")
 public class PeopleController {
 
 
@@ -27,18 +28,18 @@ public class PeopleController {
     private ArrayList<Person> people = createPeople();
 
     @RequestMapping(value = "/people", method = RequestMethod.GET)
-    public ResponseEntity<ArrayList<Person>> getPeople(@RequestParam(value = "name", required = false, defaultValue = "") String personsName,
-                                       @RequestParam(value = "hasAnimals", required = false, defaultValue = "") String hasAnimal) {
+    public ResponseEntity<ArrayList<Person>> getPeople(@RequestParam(value = "name",required = false, defaultValue = "") String name,
+                                       @RequestParam(value = "hasAnimals",required = false, defaultValue = "") String hasAnimals) {
 
         Set<Person> somePeeps = new HashSet<>();
         //nothing is given
-        if (personsName.isEmpty() && hasAnimal.isEmpty()) {
+        if (name.isEmpty() && hasAnimals.isEmpty()) {
             return ResponseEntity.ok(people);
         }
         //both are give
-        if (!personsName.isEmpty() && !hasAnimal.isEmpty()) {
-            String regex = ".*\\b" + personsName.toLowerCase() + "\\b.*";
-            boolean animals = Boolean.parseBoolean(hasAnimal.toLowerCase());
+        if (!name.isEmpty() && !hasAnimals.isEmpty()) {
+            String regex = ".*\\b" + name.toLowerCase() + "\\b.*";
+            boolean animals = Boolean.parseBoolean(hasAnimals.toLowerCase());
             for (Person p : people) {
                 Pattern pa = Pattern.compile(regex);
                 Matcher m = pa.matcher(p.name.toLowerCase());
@@ -58,8 +59,8 @@ public class PeopleController {
             return ResponseEntity.ok(new ArrayList<>(somePeeps));
         }
         //if only name is given
-        if (!personsName.isEmpty() && hasAnimal.isEmpty()) {
-            String regex = ".*\\b" + personsName.toLowerCase() + "\\b.*";
+        if (!name.isEmpty() && hasAnimals.isEmpty()) {
+            String regex = ".*\\b" + name.toLowerCase() + "\\b.*";
             for (Person p : people) {
                 Pattern pa = Pattern.compile(regex);
                 Matcher m = pa.matcher(p.name.toLowerCase());
@@ -70,12 +71,12 @@ public class PeopleController {
             return ResponseEntity.ok(new ArrayList<>(somePeeps));
         }
         //only animals are give
-        if (personsName.isEmpty() && !hasAnimal.isEmpty()) {
+        if (name.isEmpty() && !hasAnimals.isEmpty()) {
             try {
                 boolean animals;
-                if(hasAnimal.toLowerCase().equals("true")){
+                if("true".equalsIgnoreCase(hasAnimals)){
                     animals = true;
-                }else if(hasAnimal.toLowerCase().equals("false")){
+                }else if("false".equalsIgnoreCase(hasAnimals)){
                     animals = false;
                 }else{
                     throw new Exception();
@@ -99,21 +100,21 @@ public class PeopleController {
     }
 
 
-    @RequestMapping(value = "/person/add", method = RequestMethod.POST)
-    public ResponseEntity<String> addPerson(@RequestBody String json) {
-        Person p = new Gson().fromJson(json, Person.class);
-        p.id = peopleCounter.incrementAndGet();
-        if (p.pets != null) {
-            for (Pet pet : p.pets
-                    ) {
-                pet.id = petCounter.incrementAndGet();
-            }
-        }
-        if (people == null) {
-            people = new ArrayList<>();
-        }
-        return people.add(p) ? ResponseEntity.ok("User Added"):ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not added");
-    }
+//    @RequestMapping(value = "/person/add", method = RequestMethod.POST)
+//    public ResponseEntity<String> addPerson(@RequestBody String json) {
+//         personObj = new JSONObject(json,new Person(peopleCounter.incrementAndGet()));
+//        Person p = new Gson().fromJson(json, Person.class);
+//        if (personObj.pets != null) {
+//            for (Pet pet : p.pets
+//                    ) {
+//                pet.id = petCounter.incrementAndGet();
+//            }
+//        }
+//        if (people == null) {
+//            people = new ArrayList<>();
+//        }
+//        return people.add(p) ? ResponseEntity.ok("User Added"):ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not added");
+//    }
 
     @RequestMapping(value = "/person/edit", method = RequestMethod.PUT)
     public ResponseEntity<String> editPerson(@RequestBody String json) {
@@ -121,7 +122,6 @@ public class PeopleController {
         Person p = new Gson().fromJson(json, Person.class);
         for (Person person : people) {
             if (person.id == p.id) {
-                person.id = p.id;
                 person.name = p.name;
                 person.age = p.age;
                 person.imageUrl = p.imageUrl;
@@ -129,7 +129,7 @@ public class PeopleController {
                 wasEdited = "Success";
             }
         }
-        if(wasEdited.equals("Failed")){
+        if("Failed".equalsIgnoreCase(wasEdited)){
            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not found");
         }
         return ResponseEntity.ok("Success");

@@ -5,14 +5,13 @@ package hello.objects;
  */
 public class Pet {
     public long id;
-
     public String name;
     public String type;
     public String age;
     public String imageUrl;
 
-    public Pet() {
-
+    public Pet(long id) {
+        this.id = id;
     }
 
     public Pet(long id,String name, String type, String age, String imageUrl) {

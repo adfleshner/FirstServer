@@ -7,15 +7,15 @@ import java.util.List;
  */
 public class Person {
 
-    public long id;
+    final public long id;
     public String name;
     public String imageUrl;
     public int age;
     public String job;
     public List<Pet> pets;
 
-    public Person() {
-
+    public Person(long id) {
+        this.id = id;
     }
 
     public Person(long id,String name, int age, String job, String url, List<Pet> pets) {
